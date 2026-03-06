@@ -19,7 +19,7 @@ import (
 
 const (
 	STUN_SERVER = "192.168.30.6"
-	STUN_PORT   = 9005
+	STUN_PORT   = 2020
 	PUB_KEY     = 43
 	TUN_NAME    = "melson"
 	TUN_LOCAL   = "100.64.1.1" //cgnat IPs rfc 6598
