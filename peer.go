@@ -97,7 +97,6 @@ type NATClient struct {
 	session     *wintun.Session
 	readWait    windows.Handle
 	tunnelReady bool
-
 	restarts   uint64
 	pktsSent   uint64
 	pktsRecv   uint64
@@ -113,19 +112,15 @@ func main() {
 	LOG_INFO("Remote IP    : %s", TUN_REMOTE)
 	LOG_INFO("MTU          : %d", TUN_MTU)
 	LOG_INFO("Source port  : %d", SRC_PORT)
-
 	client, err := NewNATClient()
 	if err != nil {
 		LOG_ERROR("Failed to create client: %v", err)
 		os.Exit(1)
 	}
 	defer client.Close()
-
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-
 	go client.Run()
-
 	LOG_INFO("Client running. Press Ctrl+C to exit...")
 	<-sigChan
 	LOG_INFO("Shutting down...")
@@ -137,7 +132,6 @@ func NewNATClient() (*NATClient, error) {
 		return nil, fmt.Errorf("resolve STUN server: %w", err)
 	}
 	LOG_INFO("STUN: %s -> %s", STUN_SERVER, stunAddr)
-
 	localAddr := &net.UDPAddr{IP: net.IPv4zero, Port: SRC_PORT}
 	sock, err := net.ListenUDP("udp", localAddr)
 	if err != nil {
@@ -180,16 +174,13 @@ func (c *NATClient) createTunnel() error {
 	if err := c.configureTunnel(); err != nil {
 		return err
 	}
-
 	LOG_INFO("Waiting for interface to be ready...")
 	time.Sleep(2 * time.Second)
-
 	if err := c.verifyInterface(); err != nil {
 		LOG_WARN("Interface verification failed: %v", err)
 	}
-
 	c.tunnelReady = true
-	LOG_INFO("TUN '%s'  local=%s  remote=%s  mtu=%d ✓ READY", TUN_NAME, TUN_LOCAL, TUN_REMOTE, TUN_MTU)
+	LOG_INFO("TUN '%s'  local=%s  remote=%s  mtu=%d  READY", TUN_NAME, TUN_LOCAL, TUN_REMOTE, TUN_MTU)
 	return nil
 }
 
@@ -357,17 +348,13 @@ func (c *NATClient) tunnelLoop(remoteAddr *net.UDPAddr) {
 	tstart := now
 	state := STATE_PUNCH_WAIT
 	lastCountdown := time.Time{}
-
 	LOG_STATE("PUNCH_WAIT  peer=%s  (timeout in %ds)", remoteAddr, PUNCH_WAIT_TIMEOUT_S)
-
 	ticker := time.NewTicker(10 * time.Millisecond)
 	defer ticker.Stop()
-
 	defer func() {
 		atomic.StoreInt32(&stopped, 1)
 		c.sock.SetReadDeadline(time.Now().Add(1 * time.Millisecond))
 	}()
-
 	for {
 		select {
 		case <-ticker.C:
@@ -378,7 +365,6 @@ func (c *NATClient) tunnelLoop(remoteAddr *net.UDPAddr) {
 			addr := msg.addr
 			data := msg.data
 			n := len(data)
-
 			if addr.IP.Equal(remoteAddr.IP) && addr.Port == remoteAddr.Port {
 				lastRecv = now
 
