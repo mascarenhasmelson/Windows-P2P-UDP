@@ -13,7 +13,6 @@ const (
 	MAX_SESSIONS = 1024
 	SESSION_TTL  = 60
 )
-
 type session struct {
 	pubkey     uint16
 	peer       *net.UDPAddr
@@ -94,7 +93,6 @@ func (s *stunServer) handlePacket(peerAddr *net.UDPAddr, _ []byte, sid uint16) {
 		}
 		s.sendReply(waiting.peer, peerAddr, sid)
 		s.sendReply(peerAddr, waiting.peer, sid)
-
 		fmt.Printf("Paired session=%d  %s <--> %s\n",
 			sid, waiting.peer, peerAddr)
 
@@ -124,7 +122,6 @@ func (s *stunServer) findSession(sid uint16) *session {
 	}
 	return nil
 }
-
 func (s *stunServer) allocSession(now time.Time) *session {
 	for i, sess := range s.sessions {
 		if sess == nil {
